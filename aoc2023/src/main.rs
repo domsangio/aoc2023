@@ -33,6 +33,7 @@ fn main() {
         ("3", "a") => day3::day3a::day3a(&lines),
         ("5", "a") => day5::day5a::day5a(&lines),
         ("5", "test") => day5::day5a::day5a(&lines),
+        ("5", "b") => day5::day5b::day5b(&lines),
         _ => println!("WTF happened")
     }
 }
