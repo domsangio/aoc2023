@@ -1,3 +1,4 @@
+// TODO only use three rows at once, and pad left right up down with '.' so we can avoid bounds checks
 
 //[left, right) --> check [left - 1, right]
 fn check_row(left: usize, right: usize, row: &&str) -> bool {
@@ -99,14 +100,14 @@ pub fn day3b(input: &Vec<&str>) {
                     }
                 }
 
-                if row_index + 1< input.len() {
-                    for x in check_other_row(i, input[row_index + 1]) {
+                if row_index + 1 < input.len() {
+                    for x in check_other_row(i, &input[row_index + 1]) {
                         indices.push(x);
                     }
                 }
 
                 if indices.len() == 2 {
-                    
+                    h
                 }
 
             }

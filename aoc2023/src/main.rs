@@ -1,9 +1,12 @@
+extern crate itertools;
+
 use std::env;
 use std::fs;
 
 mod day1;
 mod day2;
 mod day3;
+mod day5;
 
 fn main() {
     /* Set up command line arguments for parsing and executing */
@@ -28,6 +31,7 @@ fn main() {
         ("2", "a") => day2::day2a::day2a(&lines),
         ("2", "b") => day2::day2b::day2b(&lines),
         ("3", "a") => day3::day3a::day3a(&lines),
+        ("5", "a") => day5::day5a::day5a(&lines),
         _ => println!("WTF happened")
     }
 }
