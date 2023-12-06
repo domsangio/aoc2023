@@ -7,6 +7,7 @@ mod day1;
 mod day2;
 mod day3;
 mod day5;
+mod day6;
 
 fn main() {
     /* Set up command line arguments for parsing and executing */
@@ -15,8 +16,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     // if the inputs are different
-    let file_path: String = format!("input/day{0}/{1}_input", args[1], args[2]);
-    // file_path = format!("input/day{0}/a_input", args[1]);
+    // let file_path: String = format!("input/day{0}/{1}_input", args[1], args[2]);
+    let file_path = format!("input/day{0}/a_input", args[1]);
  
     let content = fs::read_to_string(file_path).unwrap();
 
@@ -34,6 +35,8 @@ fn main() {
         ("5", "a") => day5::day5a::day5a(&lines),
         ("5", "test") => day5::day5a::day5a(&lines),
         ("5", "b") => day5::day5b::day5b(&lines),
+        ("6", "a") => day6::day6a::day6a(&lines),
+        ("6", "b") => day6::day6b::day6b(&lines),
         _ => println!("WTF happened")
     }
 }

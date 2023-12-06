@@ -82,16 +82,16 @@ pub fn day5b(input: &Vec<&str>) {
             for (f_dest, f_source, f_range) in c.func.iter() {
                 // println!("Current seed: {}, f_dest: {}, f_source: {}, f_range: {}", seed, f_dest, f_source, f_range);
                 // println!("first part: {}, second part: {}", *f_source <= *seed, (*seed + *f_source) < *f_range );
-                if *f_source <= *seed && *seed < *f_source + *f_range {
-                    println!("Current seed '{}', falls in between '{}' and '{} + {}' so gets mapped to '{}'", *seed, *f_source, *f_source, *f_range, *f_dest + *seed - *f_source);
-                    prev_seed[seed_index] = *f_dest + (*seed - *f_source);
-                    break;
-                }
+                // if *f_source <= *seed && *seed < *f_source + *f_range {
+                //     println!("Current seed '{}', falls in between '{}' and '{} + {}' so gets mapped to '{}'", *seed, *f_source, *f_source, *f_range, *f_dest + *seed - *f_source);
+                //     prev_seed[seed_index] = *f_dest + (*seed - *f_source);
+                //     break;
+                // }
             }
         }
 
         starting_seeds = prev_seed;
     }
     
-    println!("Min found: {}", min(starting_seeds.iter()).unwrap());
+    // println!("Min found: {}", min(starting_seeds.iter()).unwrap());
 }
