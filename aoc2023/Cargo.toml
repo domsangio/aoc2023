@@ -9,3 +9,9 @@ edition = "2021"
 regex = "1.5"
 lazy_static = "1.4"
 itertools = "0.12"
+
+[profile.dev]
+debug = true
+
+[profile.release]
+debug = true

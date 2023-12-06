@@ -107,7 +107,7 @@ pub fn day3b(input: &Vec<&str>) {
                 }
 
                 if indices.len() == 2 {
-                    h
+                    
                 }
 
             }

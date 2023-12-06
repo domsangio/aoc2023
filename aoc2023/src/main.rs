@@ -15,8 +15,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     // if the inputs are different
-    let mut file_path: String = format!("input/day{0}/{1}_input", args[1], args[2]);
-    file_path = format!("input/day{0}/a_input", args[1]);
+    let file_path: String = format!("input/day{0}/{1}_input", args[1], args[2]);
+    // file_path = format!("input/day{0}/a_input", args[1]);
  
     let content = fs::read_to_string(file_path).unwrap();
 
@@ -32,6 +32,7 @@ fn main() {
         ("2", "b") => day2::day2b::day2b(&lines),
         ("3", "a") => day3::day3a::day3a(&lines),
         ("5", "a") => day5::day5a::day5a(&lines),
+        ("5", "test") => day5::day5a::day5a(&lines),
         _ => println!("WTF happened")
     }
 }
