@@ -24,7 +24,7 @@ fn find_cycle<'a>(choice_loop: &'a Vec<char>, start: &'a str, choices: &'a HashM
         if !visited.contains_key(pos) {
             visited.insert(pos, HashSet::new());
         }
-        visited.get(pos).unwrap().insert(pos_choice);
+        // visited.get(pos).unwrap().insert(pos_choice);
 
         //increment pos and pos_choice
         pos_choice = (pos_choice + 1) % (choice_loop.len() as i32);
