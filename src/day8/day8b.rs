@@ -15,10 +15,10 @@ fn find_cycle<'a>(choice_loop: &'a Vec<char>, start: &'a str, choices: &'a HashM
     let mut pos = start;
     let mut pos_choice = 0;
     loop {
-        if visited.contains_key(pos) && visited.get(pos).unwrap().contains(pos_choice) {
-            // found cycle at this point
-            return (pos, pos_choice);
-        }
+        // if visited.contains_key(pos) && visited.get(pos).unwrap().contains(pos_choice) {
+        //     // found cycle at this point
+        //     return (pos, pos_choice);
+        // }
         
         // add to visited
         if !visited.contains_key(pos) {
