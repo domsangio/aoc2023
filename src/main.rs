@@ -11,6 +11,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 mod day10;
 mod day11;
 
@@ -48,6 +49,8 @@ fn main() {
         ("7", "b") => day7::day7b::day7b(&lines),
         ("8", "a") => day8::day8a::day8a(&lines),
         ("8", "b") => day8::day8b::day8b(&lines),
+        ("9", "a") => day9::day9a::day9a(&lines),
+        ("9", "b") => day9::day9b::day9b(&lines),
         ("10", "a") => day10::day10a::day10a(&lines),
         ("10", "b") => day10::day10b::day10b(&lines),
         ("11", "a") => day11::day11a::day11a(&lines),
