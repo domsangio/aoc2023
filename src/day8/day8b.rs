@@ -42,10 +42,32 @@ fn find_cycle<'a>(choice_loop: &'a Vec<char>, start: &'a str, choices: &'a HashM
 }
 
 // where do the z indices occur, how longs the loop, and where does the start of the loop begin
-fn find_z_indices_and_loop_len_and_offset() {
+fn find_z_indices_and_loop_len_and_offset<'a>(start: &'a str, choice_loop: &'a Vec<char>, choices: &'a HashMap<&'a str, Path>) {
     let mut z_indices = Vec::<i32>::new();
     let mut loop_len = 0;
     let mut offset = 0;
+
+    // seen of map from str -> index of where we see it
+    let mut seen = HashMap::<&str, i32>::new();
+    let mut choice_iter = choice_loop.iter();
+    let mut pos: &str = start;
+    let mut steps = 0;
+
+    loop {
+        if seen.contains_key(pos) {
+            loop_len = steps;
+        }
+        match choice_iter.next() {
+            Some('L') => {
+                steps += 1;
+            },
+            Some('R') => {
+                steps += 1;
+            },
+            // _ => order_iter = order.iter()
+            _ => panic!("uhohhhh")
+        }
+    }
 }
 
 // TODO not fast enough, track cycle once its reached we dont have to use the map?

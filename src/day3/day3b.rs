@@ -1,119 +1,108 @@
 // TODO only use three rows at once, and pad left right up down with '.' so we can avoid bounds checks
 
-//[left, right) --> check [left - 1, right]
-fn check_row(left: usize, right: usize, row: &&str) -> bool {
-    for i in (if left == 0 { 0 } else { left - 1 })..=right {
-        if i < row.len() {
-            let c = row.chars().nth(i).unwrap();
-            if !c.is_digit(10) && c != '.' {
-                return true;
-            }
-        }
+use std::collections::HashMap;
+
+use itertools::Itertools;
+
+fn add_to_gear_map(gear_map: &mut HashMap<(usize, usize), Vec<u32>>, gear: (usize, usize), num: u32) {
+    if gear_map.contains_key(&gear) {
+        gear_map.get_mut(&gear).unwrap().push(num);
+    } else {
+        gear_map.insert(gear, vec![num]);
     }
-    false
-    // return (left - 1 > 0 && !row.chars().nth(left - 1).unwrap().is_digit(10) && row.chars().nth(left - 1).unwrap() != '.') || 
-    // (right + 1 < row.len() && !row.chars().nth(right + 1).unwrap().is_digit(10) && row.chars().nth(right + 1).unwrap() != '.');
 }
 
-// returns start index
-fn get_left(index: usize, row: &&str) -> usize {
-    let mut i: usize = index;
-
-    while i > 0 {
-        if row.chars().nth(i - 1).unwrap().is_digit(10) {
-            i -= 1;
-        }
-    }
-
-    return i;
-}
-fn get_right(index: usize, row: &&str) -> usize {
-    let mut i: usize = index;
-
-    while i + 1 < row.len() {
-        if row.chars().nth(i+1).unwrap().is_digit(10) {
-            i += 1;
-        }
-    }
-
-    return i;
+fn convert_input(input: &Vec<&str>) -> Vec<Vec<char>> {
+    [
+        vec![std::iter::repeat('.').take(input[0].len() + 2).collect_vec()],
+        input.iter().map(|line| [
+            vec!['.'],
+            line.chars().collect_vec(),
+            vec!['.']
+        ].concat()).collect_vec(),
+        vec![std::iter::repeat('.').take(input[0].len() + 2).collect_vec()],
+    ].concat()
 }
 
-// need to make suree that if its split it still works, hard code this?
-fn check_other_row(index: usize, row: &&str) -> Vec<usize> {
-    let mut ret: Vec<usize> = Vec::new();
-
-    // if the one right above is not a digit can reuse method getright leeft
-    if !row.chars().nth(index).unwrap().is_digit(10) {
-        let left = get_left(index, row);
-        let right = get_right(index, row);
-        if left != index {
-            ret.push(left);
+fn calculate_gear_ratio(gear_map: &HashMap<(usize, usize), Vec<u32>>) -> i64 {
+    gear_map.values().fold(0, |acc, x| {
+        if x.len() == 2 {
+            return acc + (x[0] as i64) * (x[1] as i64);
         }
-        if right != index {
-            ret.push(right);
-        }
-        return ret;
-    }
-
-    // find a digit and then the rest of it (start frmo right)
-    if index + 1 < row.len() {
-        if row.chars().nth(index + 1).unwrap().is_digit(10) {
-            ret.push(get_left(index + 1, row));
-            return ret;
-        }
-    }
-    if row.chars().nth(index).unwrap().is_digit(10) {
-        ret.push(get_left(index, row));
-        return ret;
-    }
-    if index > 0 {
-        if row.chars().nth(index - 1).unwrap().is_digit(10) {
-            ret.push(get_left(index - 1, row));
-            return ret;
-        }
-    }
-
-    ret
+        acc
+    })
 }
 
 pub fn day3b(input: &Vec<&str>) {
-    let mut part_sum: u32 = 0;
+    let clean_grid = convert_input(input);
 
-    for (row_index, row) in input.iter().enumerate() {
-        for (i, c) in row.char_indices() {
-            if c == '*' {
-                // check adjacencies
-                let mut indices: Vec<usize> = Vec::new();
-
-                if get_left(i, row) != i {
-                    indices.push(get_left(i, row));
-                }
-                if get_right(i, row) != i {
-                    indices.push(get_right(i, row));
-                }
-                
-                if row_index > 0 {
-                    let above = check_other_row(i, &input[row_index - 1]);
-                    for x in above {
-                        indices.push(x);
-                    }
-                }
-
-                if row_index + 1 < input.len() {
-                    for x in check_other_row(i, &input[row_index + 1]) {
-                        indices.push(x);
-                    }
-                }
-
-                if indices.len() == 2 {
-                    
-                }
-
-            }
-        }
-
+    for line in clean_grid.iter() {
+        println!("Line: {}", line.clone().into_iter().collect::<String>());
     }
 
-    println!("{}", part_sum);
+    // find a number
+    // iterate boundnary find gear
+    // add to gear map (gear location -> vec of nums number 1, number 2)
+        // if two gears remove it
+    // loop thru gear map and sum if exxactly 2
+
+    let mut gear_map: HashMap<(usize, usize), Vec<u32>> = HashMap::new();
+    
+    let mut x = 1;
+    while x < clean_grid.len() - 1 {
+        let mut y = 1;
+        while y < clean_grid[x].len() {
+            if let Some(first_digit) = clean_grid[x][y].to_digit(10) {
+                let mut j: usize = 1;  // end of current_number
+                let mut current_number = first_digit;
+                // println!("Checking {},{}", x, y);
+
+                while let Some(next_num) = clean_grid[x][y + j].to_digit(10) {
+                    j += 1;
+                    current_number = current_number * 10 + next_num;
+                }
+
+                // iterate thru bounds for a gear
+                // top line
+                for top_bound in (y-1)..(y+j+1) {
+                    if clean_grid[x - 1][top_bound] == '*' {
+                        // println!("Top gear found here: {}-{}, curr num: {}", x - 1, top_bound, current_number);
+                        add_to_gear_map(&mut gear_map, (x - 1, top_bound), current_number);
+                    }
+                }
+
+                // left
+                if clean_grid[x][y - 1] == '*' {
+                    // println!("Left gear found here: {}-{}, curr num: {}", x, y - 1, current_number);
+                    add_to_gear_map(&mut gear_map, (x, y - 1), current_number);
+                }
+
+                // right
+                if clean_grid[x][y + j] == '*' {
+                    // println!("Right gear found here: {}-{}, curr num: {}", x, y + j, current_number);
+                    add_to_gear_map(&mut gear_map, (x, y + j), current_number);
+                }
+
+                // bottom line
+                for bottom_bound in (y-1)..(y+j+1) {
+                    if clean_grid[x + 1][bottom_bound] == '*' {
+                        // println!("Bottom gear found here: {}-{}, curr num: {}", x + 1, bottom_bound, current_number);
+                        add_to_gear_map(&mut gear_map, (x + 1, bottom_bound), current_number);
+                    }
+                }
+                // println!("Increment y: {} by {}", y, j + 1);
+                y += j + 1;     // can go one further since we know non digit followss
+                continue;
+            }
+            y += 1;
+        }
+
+        x += 1;
+    }
+
+    // for ((x,y), v) in gear_map.iter() {
+    //     println!("Gear found at: row: {}, col: {} with len: {}", x, y, v.len());
+    // }
+
+    println!("{}", calculate_gear_ratio(&gear_map));
 }

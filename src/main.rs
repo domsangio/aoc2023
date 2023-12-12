@@ -14,6 +14,7 @@ mod day8;
 mod day9;
 mod day10;
 mod day11;
+mod day12;
 
 fn main() {
     /* Set up command line arguments for parsing and executing */
@@ -22,8 +23,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     // if the inputs are different
-    let file_path: String = format!("input/day{0}/a_input", args[1]);
-    // let file_path = format!("input/day{0}/test_input", args[1]);
+    // let file_path: String = format!("input/day{0}/a_input", args[1]);
+    let file_path = format!("input/day{0}/test_input", args[1]);
  
     let content = fs::read_to_string(file_path).unwrap();
 
@@ -38,6 +39,7 @@ fn main() {
         ("2", "a") => day2::day2a::day2a(&lines),
         ("2", "b") => day2::day2b::day2b(&lines),
         ("3", "a") => day3::day3a::day3a(&lines),
+        ("3", "b") => day3::day3b::day3b(&lines),
         ("4", "a") => day4::day4a::day4a(&lines),
         ("4", "b") => day4::day4b::day4b(&lines),
         ("5", "a") => day5::day5a::day5a(&lines),
@@ -55,6 +57,8 @@ fn main() {
         ("10", "b") => day10::day10b::day10b(&lines),
         ("11", "a") => day11::day11a::day11a(&lines),
         ("11", "b") => day11::day11b::day11b(&lines),
+        ("12", "a") => day12::day12a::day12a(&lines),
+        ("12", "b") => day12::day12b::day12b(&lines),
         _ => println!("WTF happened")
     }
 }
