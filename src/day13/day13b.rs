@@ -28,7 +28,6 @@ pub fn day13b(input: &Vec<&str>) {
         for vert_split in 1..(cleaned_input[row_start].len()) {
             num_diffs = 0;
             for row in row_start..row_end {
-                println!("row?: {}", row);
                 let mut j = 0;
                 while vert_split >= j + 1 && (vert_split + j) < input[row_start].len() {
                     println!("Vert split: {}, comparing: {},{} to {},{}, j: {}", vert_split, row, vert_split - 1 - j, row, vert_split + j, j);
@@ -45,7 +44,7 @@ pub fn day13b(input: &Vec<&str>) {
                     break;
                 }
             }
-            if num_diffs == 1{
+            if num_diffs == 1 {
                 active_split = vert_split;
                 break;
             }
@@ -66,10 +65,11 @@ pub fn day13b(input: &Vec<&str>) {
                 let mut j = 0;
                 println!("Horiz split: {}, j: {}", horiz_split, j);
                 while horiz_split > j && (row_start + horiz_split + j) < row_end {
-                    println!("Horiz split: {}, comparing: {} to {}", horiz_split, horiz_split - 1 - j, horiz_split + j);
+                    println!("Horiz split: {}, comparing: {},{} to {},{}", horiz_split, horiz_split - 1 - j, col, horiz_split + j, col);
                     if cleaned_input[row_start + horiz_split - 1 - j][col] != cleaned_input[row_start + horiz_split + j][col] {
                         num_diffs += 1;
-                        if num_diffs > 1{
+                        println!("DIFFS: {}", num_diffs);
+                        if num_diffs > 1 {
                             break;
                         }
                     }
@@ -81,8 +81,10 @@ pub fn day13b(input: &Vec<&str>) {
                 }
             }
 
+            println!("Num diffs found: {}", num_diffs);
             if num_diffs == 1 {
                 active_split = horiz_split;
+                break;
             }
         }
             

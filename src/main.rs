@@ -24,8 +24,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     // if the inputs are different
-    // let file_path: String = format!("input/day{0}/a_input", args[1]);
-    let file_path = format!("input/day{0}/test_input", args[1]);
+    let file_path: String = format!("input/day{0}/a_input", args[1]);
+    // let file_path = format!("input/day{0}/test_input", args[1]);
  
     let content = fs::read_to_string(file_path).unwrap();
 
