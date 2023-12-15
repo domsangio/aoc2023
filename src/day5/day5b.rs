@@ -1,5 +1,5 @@
 use itertools::{Itertools, min};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use regex::Regex;
 
 struct Conversion {
@@ -61,6 +61,38 @@ fn construct_conversions<'a>(lines: &Vec<&str>, conversions: &'a mut Vec<Convers
     }
 }
 
+
+// takes in a range [LB, amount) and seed range [Start, offset] and returns start, amount
+// ex:: [10, 15), [12, 5] --> [12, 3]
+fn find_overlap(conversion_range: (i64, i64), seed_range: (i64, i64)) -> (i64, i64) {
+    let (conversion_lb, conversion_amount) = conversion_range;
+    let (seed_range_lb, seed_range_amount) = seed_range;
+
+    // perhaps off by one
+    if conversion_lb <= seed_range_lb && seed_range_lb < conversion_lb + conversion_amount {
+        return (seed_range_lb, std::cmp::min(seed_range_amount, (conversion_lb + conversion_amount) - (seed_range_lb + seed_range_amount)));
+    }
+
+    return (0, 0);
+}
+
+// left part of tuple is converted, right part is remaining
+fn convert_range(seed_range: (i64, i64), c: &Conversion) -> ((i64, i64), (i64, i64)) {
+    for conversion_func in c.func.iter() {
+        let (converted, amount) = find_overlap((conversion_func.0, conversion_func.2), seed_range);
+        if converted != 0 && amount != 0 {
+            // convert this subsection
+            let converted_tuple = (conversion_func.1 + (converted - seed_range.0), amount);
+
+            // also is remaining tuple even correct idk
+            let remaining_tuple = (conversion_func.0 + conversion_func.2, seed_range.1 - amount);
+            return (converted_tuple, remaining_tuple);
+        }
+    }
+
+    return (seed_range, (0,0));
+}
+
 /// need to switch to a quewue like object
 pub fn day5b(input: &Vec<&str>) {
     // need to grab our starting seeds (sorted - mutable so we change them)
@@ -73,24 +105,16 @@ pub fn day5b(input: &Vec<&str>) {
     let mut conversion_index_map: HashMap<&str, usize> = HashMap::new();
 
     construct_conversions(input, &mut conversions, &mut conversion_index_map);
+    
+    // for every conversion, try to convert this seed range
     for c in conversions {
-        println!("Conversion from {} to {}", c.source, c.dest);
-        // is it faster to binary search?
-        let mut prev_seed = starting_seeds.clone();
+        let mut processed: VecDeque<(i64, i64)> = VecDeque::new();
+        let mut unprocessed = VecDeque::from_iter(starting_seeds.iter());
 
-        for (seed_index, seed) in starting_seeds.iter().enumerate() {
-            for (f_dest, f_source, f_range) in c.func.iter() {
-                // println!("Current seed: {}, f_dest: {}, f_source: {}, f_range: {}", seed, f_dest, f_source, f_range);
-                // println!("first part: {}, second part: {}", *f_source <= *seed, (*seed + *f_source) < *f_range );
-                // if *f_source <= *seed && *seed < *f_source + *f_range {
-                //     println!("Current seed '{}', falls in between '{}' and '{} + {}' so gets mapped to '{}'", *seed, *f_source, *f_source, *f_range, *f_dest + *seed - *f_source);
-                //     prev_seed[seed_index] = *f_dest + (*seed - *f_source);
-                //     break;
-                // }
-            }
+        while let Some(seed) = unprocessed.pop_front() {
+
+            
         }
-
-        starting_seeds = prev_seed;
     }
     
     // println!("Min found: {}", min(starting_seeds.iter()).unwrap());

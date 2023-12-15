@@ -16,6 +16,7 @@ mod day10;
 mod day11;
 mod day12;
 mod day13;
+mod day14;
 
 fn main() {
     /* Set up command line arguments for parsing and executing */
@@ -62,6 +63,8 @@ fn main() {
         ("12", "b") => day12::day12b::day12b(&lines),
         ("13", "a") => day13::day13a::day13a(&lines),
         ("13", "b") => day13::day13b::day13b(&lines),
+        ("14", "a") => day14::day14a::day14a(&lines),
+        ("14", "b") => day14::day14b::day14b(&lines),
         _ => println!("WTF happened")
     }
 }
