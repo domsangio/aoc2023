@@ -49,8 +49,7 @@ fn beam(
 ) {
     let (x, y) = starting_pos;
 
-    // let ten_millis = time::Duration::from_millis(10);
-    // thread::sleep(ten_millis);
+
 
     // kill the recursion
     if !check_in_bounds(
