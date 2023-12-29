@@ -1,77 +1,108 @@
-
-use std::collections::{HashMap, HashSet};
 use regex::Regex;
+use std::collections::HashMap;
 
 struct Path {
     left: String,
-    right: String
+    right: String,
 }
 
-// for a given node, find its cycle
-// the cycle will be the pos str and the index into the choice loop
-// note, the cycle does not necessarily mean we start there? we could do like A -> B -> C -> B -> C
-fn find_cycle<'a>(choice_loop: &'a Vec<char>, start: &'a str, choices: &'a HashMap<&'a str, Path>) -> (&'a str, i32) {
-    let mut visited: HashMap<&str, HashSet<i32>> = HashMap::new();
+fn iterate<'a>(
+    curr_word: &'a str,
+    index: usize,
+    choice_loop: &Vec<char>,
+    choices: &'a HashMap<&'a str, Path>,
+) -> &'a str {
+    match choice_loop[index % choice_loop.len()] {
+        'L' => &choices.get(curr_word).unwrap().left,
+        _ => &choices.get(curr_word).unwrap().right,
+    }
+}
+
+// return cycle start and cycle end usize
+fn find_cycle<'a>(
+    choice_loop: &'a Vec<char>,
+    start: &'a str,
+    choices: &'a HashMap<&'a str, Path>,
+) -> (usize, usize) {
+    let mut index: usize = 0;
+    // index into the choice loop and the word were on and this points to index we found it on
+    let mut visited: HashMap<(usize, &str), usize> = HashMap::new();
     let mut pos = start;
-    let mut pos_choice = 0;
+
     loop {
-        // if visited.contains_key(pos) && visited.get(pos).unwrap().contains(pos_choice) {
-        //     // found cycle at this point
-        //     return (pos, pos_choice);
-        // }
-        
-        // add to visited
-        if !visited.contains_key(pos) {
-            visited.insert(pos, HashSet::new());
+        println!("Curr pos: {}, index: {},  direction: {}", pos, index, index % choice_loop.len());
+        if let Some(x) = visited.get(&(index % choice_loop.len(), pos)) {
+            println!("Seen this here: {}", *x);
+            return (*x, index);
         }
-        // visited.get(pos).unwrap().insert(pos_choice);
+
+        visited.insert((index % choice_loop.len(), pos), index);
 
         //increment pos and pos_choice
-        pos_choice = (pos_choice + 1) % (choice_loop.len() as i32);
-        match choice_loop[pos_choice as usize] {
-            'L' => {
-                pos = &choices.get(pos).unwrap().left;
-
-            },
-            'R' => {
-                pos = &choices.get(pos).unwrap().right;
-            },
-            _ => panic!("uhoh")
-        }
+        pos = iterate(pos, index, choice_loop, choices);
+        index += 1;
     }
 }
 
-// where do the z indices occur, how longs the loop, and where does the start of the loop begin
-fn find_z_indices_and_loop_len_and_offset<'a>(start: &'a str, choice_loop: &'a Vec<char>, choices: &'a HashMap<&'a str, Path>) {
-    let mut z_indices = Vec::<i32>::new();
-    let mut loop_len = 0;
-    let mut offset = 0;
+// vec of indices that holds the starting Zs before its in the cycle
+fn get_starting_zs<'a>(
+    curr_word: &'a str,
+    choice_loop: &Vec<char>,
+    choices: &'a HashMap<&'a str, Path>,
+    cycle_start: usize,
+) -> Vec<usize> {
+    let mut starting_zs: Vec<usize> = Vec::new();
 
-    // seen of map from str -> index of where we see it
-    let mut seen = HashMap::<&str, i32>::new();
-    let mut choice_iter = choice_loop.iter();
-    let mut pos: &str = start;
-    let mut steps = 0;
+    let mut pos = curr_word;
+    let mut index = 0;
 
     loop {
-        if seen.contains_key(pos) {
-            loop_len = steps;
+        if index == cycle_start {
+            return starting_zs;
         }
-        match choice_iter.next() {
-            Some('L') => {
-                steps += 1;
-            },
-            Some('R') => {
-                steps += 1;
-            },
-            // _ => order_iter = order.iter()
-            _ => panic!("uhohhhh")
+
+        if pos.chars().nth_back(0) == Some('Z') {
+            starting_zs.push(index);
         }
+
+        pos = iterate(pos, index, choice_loop, choices);
+        index += 1;
     }
 }
 
-// TODO not fast enough, track cycle once its reached we dont have to use the map?
-// maybe im missing something - iterate 1 by 1 and see when we hit the Zs?
+fn find_z_indices_in_loop<'a>(
+    curr_word: &'a str,
+    choice_loop: &'a Vec<char>,
+    choices: &'a HashMap<&'a str, Path>,
+    cycle_start: usize,
+    cycle_end: usize,
+) -> Vec<usize> {
+    // iterate until the start
+    let mut ret: Vec<usize> = Vec::new();
+
+    let mut pos: &str = curr_word;
+    let mut index: usize = 0;
+
+    while index < cycle_start {
+        pos = iterate(pos, index, choice_loop, choices);
+        index += 1;
+    }
+
+    loop {
+        if index == cycle_end {
+            return ret;
+        }
+
+        if pos.chars().nth_back(0) == Some('Z') {
+            ret.push(index);
+        }
+
+        pos = iterate(pos, index, choice_loop, choices);
+        index += 1;
+    }
+}
+
+
 pub fn day8b(input: &Vec<&str>) {
     let order: Vec<char> = input[0].chars().collect();
     let mut steps = 0;
@@ -82,10 +113,13 @@ pub fn day8b(input: &Vec<&str>) {
     for line in input.iter().skip(2) {
         println!("{}", line);
         if let Some(captures) = choice_pattern.captures(line) {
-            choices.insert(captures.get(1).unwrap().as_str(), Path {
-                left: captures.get(2).unwrap().as_str().to_owned(),
-                right: captures.get(3).unwrap().as_str().to_owned()
-            });
+            choices.insert(
+                captures.get(1).unwrap().as_str(),
+                Path {
+                    left: captures.get(2).unwrap().as_str().to_owned(),
+                    right: captures.get(3).unwrap().as_str().to_owned(),
+                },
+            );
 
             // println!("captures 1: {}", captures.get(1).unwrap().as_str());
             if captures.get(1).unwrap().as_str().chars().nth(2).unwrap() == 'A' {
@@ -95,63 +129,61 @@ pub fn day8b(input: &Vec<&str>) {
     }
 
     for x in positions.iter() {
-        println!("Starings: {}", x);
+        println!("starting: {}", x);
     }
 
     // for (x, p) in choices.iter() {
     //     println!("String: {}, path.left: {}, path.right: {}", *x, p.left, p.right);
     // }
 
-    let mut order_iter = order.iter();
-    loop {
-        // print!("Current position: ");
-        // for x in positions.iter() {
-        //     print!("{}, ", x);
-        // }
-        // print!("\n");
+    let mut all_starting_zs: Vec<Vec<usize>> = Vec::new();
+    let mut all_cycle_zs: Vec<Vec<usize>> = Vec::new();
+    let mut cycle_bounds: Vec<(usize, usize)> = Vec::new();
 
-        // println!("Pos: {}", pos);
-        match order_iter.next() {
-            Some('L') => {
-                // iterate all options to the left/right
-                // pos = &choices.get(pos).unwrap().left;
-                for i in 0..positions.len() {
-                    // println!("Shifting: {} to the left: {}", positions[i], &choices.get(positions[i]).unwrap().left);
-                    positions[i] = &choices.get(positions[i]).unwrap().left;
-                }
-                steps += 1;
-            },
-            Some('R') => {
-                for i in 0..positions.len() {
-                    // println!("Shifting: {} to the right: {}", positions[i], &choices.get(positions[i]).unwrap().right);
-                    positions[i] = &choices.get(positions[i]).unwrap().right;
-                }
-                steps += 1;
-            },
-            _ => order_iter = order.iter()
-        }
+    for starting_position in positions {
+        let (cycle_start, cycle_end) = find_cycle(&order, starting_position, &choices);
+        let starting_zs = get_starting_zs(starting_position, &order, &choices, cycle_start);
+        let cycle_zs = find_z_indices_in_loop(starting_position, &order, &choices, cycle_start, cycle_end);
 
-        // print!("after we shiftede position: ");
-        // for x in positions.iter() {
-        //     print!("{}, ", x);
-        // }
-        // print!("\n");
-
-        if steps % 10000 == 0 {
-            println!("Executed {} steps", steps);
-        }
-
-
-        let mut all_end_with_z = true;
-        for x in positions.iter() {
-            if x.chars().nth(2).unwrap() != 'Z' {
-                all_end_with_z = false;
-                break;
-            }
-        }
-        if all_end_with_z {
-            println!("Answer: {}", steps);
-            return;
-        }
+        all_starting_zs.push(starting_zs);
+        all_cycle_zs.push(cycle_zs);
+        cycle_bounds.push((cycle_start, cycle_end));
     }
+
+    // Do the math here
+    for x in all_starting_zs.iter() {
+        for y in x {
+            print!("{} ", y);
+        }
+        println!("");
+    }
+
+    println!("Cycle Zs");
+    for x in all_cycle_zs.iter() {
+        for y in x {
+            print!("{} ", y);
+        }
+        println!("");
+    }
+
+    for (start, end) in cycle_bounds.iter() {
+        println!("Start: {}, End: {}", start, end);
+    }
+
+
+    // get into the cycles first
+    let max_cycle_start = cycle_bounds
+        .iter()
+        .map(|(start, _)| *start)
+        .max()
+        .unwrap();
+
+    // // TODO get this part to work
+    // for starting_zs in all_starting_zs.iter() {
+    //     for starting_z in starting_zs.iter() {
+    //     }
+    // }
+
+    
+
 }
